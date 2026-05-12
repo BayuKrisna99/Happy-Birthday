@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    
+    <!-- Load React dari Internet -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    
+    <!-- Load Babel supaya browser mengerti kode React (JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Load Tailwind CSS dari Internet -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+          .scrollbar-hide::-webkit-scrollbar { display: none; }
+          .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        }
+    </style>
+</head>
+<body class="bg-[#121212]">
+    
+    <!-- Tempat Gameboy akan dimunculkan -->
+    <div id="root"></div>
+
+    <!-- KODE UTAMA APLIKASI -->
+    <script type="text/babel">
+        // Mengambil fitur React yang dibutuhkan
+        const { useState, useEffect, useRef } = React;
+
+        // --- STYLING KHUSUS FONT RETRO ---
+        const fontStyles = `
+          @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+          
+          .font-pixel { font-family: 'Press Start 2P', cursive; }
+          .font-vt { font-family: 'VT323', monospace; }
+          
+          .scanlines { position: relative; }
+          .scanlines::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 50;
+            pointer-events: none;
+          }
+        `;
+
+        function App() {
+          const [currentScreen, setCurrentScreen] = useState('loading'); 
+          const [loadingProgress, setLoadingProgress] = useState(0);
+
+          useEffect(() => {
+            if (currentScreen === 'loading') {
+              const interval = setInterval(() => {
+                setLoadingProgress((prev) => {
+                  if (prev >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => setCurrentScreen('home'), 500);
+                    return 100;
+                  }
+                  return prev + 5;
+                });
+              }, 100);
+              return () => clearInterval(interval);
+            }
+          }, [currentScreen]);
+
+          return (
+            <div className="min-h-screen bg-[#121212] flex items-center justify-center p-4 select-none">
+              <style>{fontStyles}</style>
+
+              <div className="w-full max-w-[400px] bg-[#e0e0e0] rounded-t-xl rounded-b-[40px] shadow-2xl border-b-[10px] border-r-[4px] border-[#a0a0a0] relative overflow-hidden">
+                <div className="flex justify-between px-4 py-2 border-b-2 border-[#c0c0c0]">
+                  <div className="w-1/4 h-1 bg-[#c0c0c0] rounded-full"></div>
+                  <div className="w-1/4 h-1 bg-[#c0c0c0] rounded-full"></div>
+                </div>
+
+                <div className="p-6">
+                  <div className="bg-[#4a4a4a] rounded-t-lg rounded-b-[30px] p-4 shadow-inner relative">
+                    <div className="flex justify-between items-center text-[#b0b0b0] text-[10px] font-sans font-bold mb-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse shadow-[0_0_5px_red]"></div>
+                        <span>POWER</span>
+                      </div>
+                      <span className="italic tracking-widest">LOVE-GAME BOY</span>
+                    </div>
+
+                    <div className="bg-[#111111] h-[320px] rounded border-4 border-black overflow-hidden relative scanlines flex flex-col items-center">
+                      {currentScreen === 'loading' && <LoadingScreen progress={loadingProgress} />}
+                      {currentScreen === 'home' && <HomeScreen setScreen={setCurrentScreen} />}
+                      {currentScreen === 'message' && <MessageScreen setScreen={setCurrentScreen} />}
+                      {currentScreen === 'gallery' && <GalleryScreen setScreen={setCurrentScreen} />}
+                      {currentScreen === 'music' && <MusicScreen setScreen={setCurrentScreen} />}
+                      {currentScreen === 'tetris' && <TetrisScreen setScreen={setCurrentScreen} />}
+                    </div>
+
+                    <div className="text-center text-[#b0b0b0] text-[8px] font-sans font-bold mt-2 tracking-widest">
+                      DOT MATRIX WITH STEREO SOUND
+                    </div>
+                  </div>
+                </div>
+
+                <div className="px-8 pb-10 pt-2 flex justify-between items-center">
+                  <div className="relative w-24 h-24">
+                    <div className="absolute top-8 left-0 w-24 h-8 bg-[#222] rounded shadow-md border-b-4 border-black"></div>
+                    <div className="absolute top-0 left-8 w-8 h-24 bg-[#222] rounded shadow-md border-b-4 border-black"></div>
+                    <div className="absolute top-10 left-10 w-4 h-4 rounded-full bg-[#111]"></div>
+                  </div>
+
+                  <div className="flex gap-4 transform -rotate-12 mt-8">
+                    <div className="flex flex-col items-center gap-1">
+                      <button className="w-12 h-12 bg-[#9e1b4d] rounded-full shadow-[0_4px_0_#5a0f2c] active:translate-y-1 transition-all"></button>
+                      <span className="font-bold text-[#a0a0a0] text-sm font-sans">B</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1 -mt-4">
+                      <button className="w-12 h-12 bg-[#9e1b4d] rounded-full shadow-[0_4px_0_#5a0f2c] active:translate-y-1 transition-all"></button>
+                      <span className="font-bold text-[#a0a0a0] text-sm font-sans">A</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-center gap-4 pb-8 -mt-6">
+                  <div className="flex flex-col items-center gap-1 transform -rotate-12">
+                    <div className="w-12 h-3 bg-[#444] rounded-full shadow-inner border border-gray-600"></div>
+                    <span className="font-bold text-[#a0a0a0] text-[10px] font-sans">SELECT</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 transform -rotate-12">
+                    <div className="w-12 h-3 bg-[#444] rounded-full shadow-inner border border-gray-600"></div>
+                    <span className="font-bold text-[#a0a0a0] text-[10px] font-sans">START</span>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-4 right-4 flex gap-1 transform -rotate-12">
+                  {[1,2,3,4,5,6].map(i => (
+                     <div key={i} className="w-1 h-8 bg-gray-400 rounded-full shadow-inner"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        // ================= KOMPONEN =================
+
+        function LoadingScreen({ progress }) {
+          return (
+            <div className="w-full h-full flex flex-col justify-center items-center text-[#39ff14] p-4 font-pixel">
+              <h1 className="text-sm mb-8 text-center leading-relaxed">HAPPY BIRTHDAY RENNIS</h1>
+              <div className="w-full text-[10px] mb-2 text-left">&gt; READY! _</div>
+              <div className="w-full h-4 border-2 border-[#39ff14] p-[2px] rounded-sm">
+                <div className="h-full bg-[#39ff14]" style={{ width: progress + '%' }}></div>
+              </div>
+              <div className="text-[10px] mt-2">{progress}%</div>
+              {progress === 100 && <div className="mt-6 text-xs animate-bounce text-yellow-300">SMILE!</div>}
+            </div>
+          );
+        }
+
+        function HomeScreen({ setScreen }) {
+          return (
+            <div className="w-full h-full flex flex-col justify-between text-[#39ff14] p-3 font-pixel">
+              <div className="text-center mt-4">
+                <h1 className="text-lg leading-tight mb-2 text-[#39ff14] drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">Happy<br/>Birthday!</h1>
+                <p className="text-[8px] animate-pulse text-white">Press Button</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 mb-2 w-full mt-auto">
+                <button onClick={() => setScreen('message')} className="bg-blue-600 text-white border-2 border-white rounded-md py-3 text-[9px] hover:bg-blue-500 active:scale-95 transition-transform">MESSAGE</button>
+                <button onClick={() => setScreen('gallery')} className="bg-red-600 text-white border-2 border-white rounded-md py-3 text-[9px] hover:bg-red-500 active:scale-95 transition-transform">GALLERY</button>
+                <button onClick={() => setScreen('music')} className="bg-purple-600 text-white border-2 border-white rounded-md py-3 text-[9px] hover:bg-purple-500 active:scale-95 transition-transform">MUSIC</button>
+                <button onClick={() => setScreen('tetris')} className="bg-green-600 text-white border-2 border-white rounded-md py-3 text-[9px] hover:bg-green-500 active:scale-95 transition-transform">TETRIS</button>
+              </div>
+            </div>
+          );
+        }
+
+        function MessageScreen({ setScreen }) {
+          // [GANTI TEKS PESAN DI SINI]
+          const messageText = `Hi Sayang!\nHappy Birthday yaaa Rennis!\nHari ini aku pengen ngucapin makasih banyak udah selalu ada buat aku.\n\nMakasih udah jadi pendengar yang baik, teman curhat, dan support system terbaik aku.Terima kasih selalu support aku, dah mau menerima manjaku, dan sifat unikku ini.\n\nSemoga di umur yang baru ini kamu makin sukses, panjang umur, sehat selalu, rezekinya mengalir deras seperti air zam-zam dan semua yang kamu cita-citakan tercapai.\nHiduplah lebih lama denganku yaa!\n\nI love you <3`;
+
+          return (
+            <div className="w-full h-full flex flex-col text-[#39ff14] p-3 font-pixel bg-[#111]">
+              <h2 className="text-center text-[12px] border-b border-[#39ff14] pb-2 mb-2 uppercase">Message</h2>
+              <div className="flex-1 overflow-y-auto font-vt text-[18px] leading-tight pr-2 scrollbar-hide text-white">
+                <p className="whitespace-pre-wrap">{messageText}</p>
+              </div>
+              <div className="flex flex-col gap-2 mt-3 w-full border-t border-[#39ff14] pt-2">
+                <button onClick={() => setScreen('home')} className="bg-red-600 text-white border-2 border-white rounded py-2 text-[10px] w-full active:scale-95">KEMBALI</button>
+              </div>
+            </div>
+          );
+        }
+
+        function GalleryScreen({ setScreen }) {
+          const [isPrinting, setIsPrinting] = useState(false);
+          const [printProgress, setPrintProgress] = useState(0);
+          const [showMedia, setShowMedia] = useState(false);
+          const [hdMedia, setHdMedia] = useState(null);
+
+          // [TARUH FILE FOTO & VIDEO DI FOLDER YANG SAMA DAN GANTI NAMANYA DI SINI]
+          // Pastikan nama file dan akhirannya (.jpg/.png/.mp4) persis sama
+          const galleryItems = [
+            { type: 'image', url: './foto1.jpg', text: '#1' },
+            { type: 'image', url: './foto2.jpg', text: '#2' },
+            { type: 'image', url: './foto3.jpg', text: '#3' },
+            { type: 'image', url: './foto4.jpg', text: '#4' },
+            { type: 'video', url: './video.mp4', text: 'Clip Dump' }
+          ];
+
+          const handlePrint = () => {
+            setIsPrinting(true);
+            setPrintProgress(0);
+            const interval = setInterval(() => {
+              setPrintProgress((prev) => {
+                if (prev >= 100) {
+                  clearInterval(interval);
+                  setShowMedia(true);
+                  return 100;
+                }
+                return prev + 10;
+              });
+            }, 200);
+          };
+
+          return (
+            <div className="w-full h-full flex flex-col text-[#39ff14] p-3 font-pixel bg-[#111] relative">
+              <div className="flex justify-between items-center border-b border-[#39ff14] pb-2 mb-2">
+                <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
+                <h2 className="text-[10px] uppercase text-yellow-300">LOVE PHOTOBOX</h2>
+                <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              </div>
+              
+              <div className={`flex-1 flex flex-col items-center overflow-y-auto scrollbar-hide pb-2 ${showMedia ? 'justify-start pt-2' : 'justify-center'}`}>
+                {!isPrinting && !showMedia && (
+                  <div className="text-center">
+                    <p className="font-vt text-lg text-white mb-4">Photobox siap digunakan</p>
+                    <button onClick={handlePrint} className="bg-red-600 text-white border-2 border-white rounded px-4 py-2 text-[10px] animate-pulse active:scale-95">MULAI CETAK</button>
+                  </div>
+                )}
+
+                {isPrinting && !showMedia && (
+                  <div className="text-center w-full px-4">
+                    <div className="w-full h-32 bg-[#222] border-2 border-gray-600 rounded-sm mb-4 flex items-end justify-center overflow-hidden">
+                       <div className="w-[80%] bg-white transition-all duration-300 border-x border-t border-gray-300" style={{ height: printProgress + '%' }}></div>
+                    </div>
+                    <p className="font-vt text-lg text-white mb-2">Mencetak file {printProgress}%</p>
+                    <div className="w-full h-4 border-2 border-white p-[2px] rounded-sm">
+                      <div className="h-full bg-white transition-all" style={{ width: printProgress + '%' }}></div>
+                    </div>
+                  </div>
+                )}
+
+                {showMedia && (
+                  <div className="w-full flex flex-col gap-6 pt-2">
+                    <p className="text-center text-[8px] text-gray-400 font-sans mb-[-10px] animate-pulse">Klik foto/video untuk buka HD</p>
+                    {galleryItems.map((item, i) => (
+                      <div key={i} onClick={() => setHdMedia(item)} className="bg-white p-2 pb-8 rounded-sm shadow-md mx-auto w-[85%] relative border border-gray-300 cursor-pointer hover:scale-105 transition-transform">
+                        {item.type === 'image' ? (
+                          <img src={item.url} alt="Gallery item" className="w-full h-[180px] object-cover border border-gray-200 bg-gray-100" />
+                        ) : (
+                          <div className="w-full h-[180px] bg-black border border-gray-200 relative flex items-center justify-center">
+                             <div className="absolute z-10 w-10 h-10 bg-white/70 rounded-full flex items-center justify-center pl-1">
+                               <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-black border-b-[8px] border-b-transparent"></div>
+                             </div>
+                             <video src={item.url} className="w-full h-full object-cover opacity-80" />
+                          </div>
+                        )}
+                        <span className="absolute bottom-1 left-0 right-0 text-center text-black font-vt text-[18px] font-bold">{item.text}</span>
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-3 bg-yellow-100/50 rotate-[-3deg] shadow-sm"></div>
+                      </div>
+                    ))}
+                    <div className="h-4 w-full"></div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-2 w-full pt-2 border-t border-[#39ff14] flex gap-2">
+                {showMedia && <button onClick={() => {setIsPrinting(false); setShowMedia(false);}} className="bg-blue-600 text-white border-2 border-white rounded py-2 text-[8px] flex-1 active:scale-95">CETAK ULANG</button>}
+                <button onClick={() => setScreen('home')} className="bg-red-600 text-white border-2 border-white rounded py-2 text-[8px] flex-1 active:scale-95">KEMBALI</button>
+              </div>
+
+              {hdMedia && (
+                <div className="absolute inset-0 bg-black/95 z-50 flex flex-col items-center justify-center p-2 rounded">
+                  <button onClick={() => setHdMedia(null)} className="absolute top-2 right-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center font-sans font-bold text-xs shadow-md active:scale-95">X</button>
+                  {hdMedia.type === 'image' ? (
+                    <img src={hdMedia.url} className="w-full max-h-[80%] object-contain rounded" alt="HD" />
+                  ) : (
+                    <video src={hdMedia.url} controls autoPlay className="w-full max-h-[80%] object-contain rounded" />
+                  )}
+                  <p className="text-white font-vt text-xl mt-4 border-b border-gray-500 pb-1">{hdMedia.text}</p>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        function MusicScreen({ setScreen }) {
+          const [isPlaying, setIsPlaying] = useState(false);
+          const audioRef = useRef(null);
+          
+          // [TARUH FILE MUSIK DI FOLDER YANG SAMA DAN GANTI NAMANYA DI SINI]
+          const musicUrl = "./musik.mp3"; 
+
+          const togglePlay = () => {
+            if (isPlaying) audioRef.current.pause();
+            else audioRef.current.play();
+            setIsPlaying(!isPlaying);
+          };
+
+          return (
+            <div className="w-full h-full flex flex-col text-[#39ff14] p-3 font-pixel bg-[#111]">
+              <h2 className="text-center text-[12px] border-b border-[#39ff14] pb-2 mb-2 uppercase text-purple-400">Music Player</h2>
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="w-24 h-24 bg-[#222] border-2 border-purple-400 rounded-md mb-4 flex items-center justify-center overflow-hidden relative">
+                   <div className="flex gap-1 items-end h-10 z-10">
+                     <div className={`w-2 bg-green-500 ${isPlaying ? 'animate-bounce' : ''}`} style={{height: '60%'}}></div>
+                     <div className={`w-2 bg-yellow-500 ${isPlaying ? 'animate-bounce delay-75' : ''}`} style={{height: '100%'}}></div>
+                     <div className={`w-2 bg-red-500 ${isPlaying ? 'animate-bounce delay-150' : ''}`} style={{height: '40%'}}></div>
+                     <div className={`w-2 bg-blue-500 ${isPlaying ? 'animate-bounce delay-75' : ''}`} style={{height: '80%'}}></div>
+                   </div>
+                </div>
+                <p className="text-[10px] text-white mb-1 text-center">Our Favorite Song</p>
+                <p className="font-vt text-lg text-purple-300 mb-4 text-center">Lagu Spesial Kita</p>
+                <audio ref={audioRef} src={musicUrl} loop />
+                <div className="flex gap-4">
+                  <button className="text-white text-[10px] opacity-50">&lt;&lt;</button>
+                  <button onClick={togglePlay} className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white active:scale-95 shadow-md">
+                    {isPlaying ? '||' : '►'}
+                  </button>
+                  <button className="text-white text-[10px] opacity-50">&gt;&gt;</button>
+                </div>
+              </div>
+              <div className="mt-2 w-full">
+                <button onClick={() => { if (audioRef.current) audioRef.current.pause(); setScreen('home'); }} className="bg-red-600 text-white border-2 border-white rounded py-2 text-[10px] w-full active:scale-95">KEMBALI</button>
+              </div>
+            </div>
+          );
+        }
+
+        // LOGIKA TETRIS
+        const ROWS = 10, COLS = 8;
+        const TETROMINOS = [
+          { shape: [[1, 1, 1, 1]], color: 'bg-cyan-500' },
+          { shape: [[1, 0, 0], [1, 1, 1]], color: 'bg-blue-500' },
+          { shape: [[0, 0, 1], [1, 1, 1]], color: 'bg-orange-500' },
+          { shape: [[1, 1], [1, 1]], color: 'bg-yellow-500' },
+          { shape: [[0, 1, 1], [1, 1, 0]], color: 'bg-green-500' },
+          { shape: [[0, 1, 0], [1, 1, 1]], color: 'bg-purple-500' },
+          { shape: [[1, 1, 0], [0, 1, 1]], color: 'bg-red-500' },
+        ];
+        const rotateMatrix = (matrix) => {
+          const rows = matrix.length, cols = matrix[0].length;
+          const rotated = Array.from({ length: cols }, () => Array(rows).fill(0));
+          for (let r=0; r<rows; r++) for (let c=0; c<cols; c++) rotated[c][rows - 1 - r] = matrix[r][c];
+          return rotated;
+        };
+
+        function TetrisScreen({ setScreen }) {
+          const [gameState, setGameState] = useState('idle'); 
+          const [board, setBoard] = useState(Array.from({ length: ROWS }, () => Array(COLS).fill(null)));
+          const [piece, setPiece] = useState(null);
+          const [score, setScore] = useState(0);
+
+          const checkCollision = (shape, x, y, currentBoard = board) => {
+            for (let r = 0; r < shape.length; r++) {
+              for (let c = 0; c < shape[r].length; c++) {
+                if (shape[r][c]) {
+                  const newY = y + r, newX = x + c;
+                  if (newX < 0 || newX >= COLS || newY >= ROWS || (newY >= 0 && currentBoard[newY][newX] !== null)) return true;
+                }
+              }
+            }
+            return false;
+          };
+
+          const spawnPiece = (currentBoard = board) => {
+            const randomTet = TETROMINOS[Math.floor(Math.random() * TETROMINOS.length)];
+            const newPiece = { shape: randomTet.shape, color: randomTet.color, pos: { x: Math.floor(COLS / 2) - Math.floor(randomTet.shape[0].length / 2), y: 0 } };
+            if (checkCollision(newPiece.shape, newPiece.pos.x, newPiece.pos.y, currentBoard)) setGameState('gameover');
+            else setPiece(newPiece);
+          };
+
+          const startGame = () => {
+            setBoard(Array.from({ length: ROWS }, () => Array(COLS).fill(null)));
+            setScore(0);
+            setGameState('playing');
+            spawnPiece(Array.from({ length: ROWS }, () => Array(COLS).fill(null)));
+          };
+
+          const dropPiece = () => {
+            if (gameState !== 'playing' || !piece) return;
+            if (!checkCollision(piece.shape, piece.pos.x, piece.pos.y + 1)) {
+              setPiece({ ...piece, pos: { x: piece.pos.x, y: piece.pos.y + 1 } });
+            } else {
+              const newBoard = board.map(row => [...row]);
+              let isGameOver = false;
+              piece.shape.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                  if (cell) {
+                    if (piece.pos.y + y < 0) isGameOver = true;
+                    else newBoard[piece.pos.y + y][piece.pos.x + x] = piece.color + " border-t-white/30 border-l-white/30 border-b-black/40 border-r-black/40 border-[2px]";
+                  }
+                });
+              });
+              if (isGameOver) { setGameState('gameover'); } else {
+                let linesCleared = 0;
+                const finalBoard = newBoard.filter(row => {
+                  const isFull = row.every(cell => cell !== null);
+                  if (isFull) linesCleared++;
+                  return !isFull;
+                });
+                while (finalBoard.length < ROWS) finalBoard.unshift(Array(COLS).fill(null));
+                if (linesCleared > 0) setScore(s => s + linesCleared * 100);
+                setBoard(finalBoard);
+                spawnPiece(finalBoard);
+              }
+            }
+          };
+
+          useEffect(() => {
+            let timeoutId;
+            if (gameState === 'playing') timeoutId = setTimeout(() => dropPiece(), 500);
+            return () => clearTimeout(timeoutId);
+          }, [piece, board, gameState]);
+
+          const moveHorizontal = (dir) => {
+            if (gameState !== 'playing' || !piece) return;
+            if (!checkCollision(piece.shape, piece.pos.x + dir, piece.pos.y)) setPiece({ ...piece, pos: { ...piece.pos, x: piece.pos.x + dir } });
+          };
+
+          const rotate = () => {
+            if (gameState !== 'playing' || !piece) return;
+            const rotatedShape = rotateMatrix(piece.shape);
+            if (!checkCollision(rotatedShape, piece.pos.x, piece.pos.y)) setPiece({ ...piece, shape: rotatedShape });
+          };
+
+          const displayGrid = board.map(row => [...row]);
+          if (piece && gameState === 'playing') {
+            piece.shape.forEach((row, py) => {
+              row.forEach((cell, px) => {
+                if (cell) {
+                  const drawY = py + piece.pos.y, drawX = px + piece.pos.x;
+                  if (drawY >= 0 && drawY < ROWS && drawX >= 0 && drawX < COLS) {
+                    displayGrid[drawY][drawX] = piece.color + " border-t-white/30 border-l-white/30 border-b-black/40 border-r-black/40 border-[2px]";
+                  }
+                }
+              });
+            });
+          }
+
+          return (
+            <div className="w-full h-full flex flex-col text-[#39ff14] p-3 font-pixel bg-[#111] relative">
+              <div className="flex justify-between items-center border-b border-[#39ff14] pb-2 mb-2">
+                <h2 className="text-[10px] uppercase text-green-400">Tetris</h2>
+                <div className="text-right text-[8px] text-white"><p>Score: {score}</p><p>Level: 1</p></div>
+              </div>
+              <div className="flex-1 flex justify-center items-center relative">
+                <div className="w-32 h-40 bg-[#222] border-2 border-gray-600 grid grid-cols-8 grid-rows-10 relative overflow-hidden">
+                  {displayGrid.map((row, y) => row.map((cellClass, x) => <div key={`${y}-${x}`} className={`border-[0.5px] border-[#333] ${cellClass || 'bg-transparent'}`}></div>))}
+                </div>
+                {gameState === 'gameover' && (
+                  <div className="absolute inset-0 bg-black/80 flex items-center justify-center p-2 z-10">
+                    <div className="bg-[#111] border-2 border-yellow-400 p-3 text-center rounded w-full shadow-[0_0_10px_yellow]">
+                      <h3 className="text-red-500 text-[12px] mb-3 animate-pulse">GAME OVER</h3>
+                      <p className="font-vt text-yellow-300 text-[16px] leading-tight mb-4">INGET YA!<br/>walaupun kamu kalah, tapi kamu selalu menang kok di hati aku, HEHE ^_^</p>
+                      <p className="text-pink-500 text-[10px] mb-4">I LOVE YOU &lt;3</p>
+                      <button onClick={() => setScreen('home')} className="bg-blue-600 text-white border border-white rounded px-4 py-2 text-[8px] active:scale-95">OK</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="mt-2 w-full flex gap-1">
+                <button onClick={() => moveHorizontal(-1)} className="bg-gray-700 text-white border-b-2 border-gray-900 rounded py-2 text-[8px] flex-1 active:scale-95">&lt;</button>
+                <button onClick={rotate} className="bg-gray-700 text-white border-b-2 border-gray-900 rounded py-2 text-[8px] flex-1 active:scale-95">ROTATE</button>
+                <button onClick={() => moveHorizontal(1)} className="bg-gray-700 text-white border-b-2 border-gray-900 rounded py-2 text-[8px] flex-1 active:scale-95">&gt;</button>
+              </div>
+              <div className="mt-1 w-full flex gap-1">
+                <button onClick={gameState === 'idle' || gameState === 'gameover' ? startGame : undefined} className="bg-green-600 text-white border-2 border-white rounded py-2 text-[9px] flex-1 active:scale-95">{gameState === 'playing' ? 'PLAYING...' : 'START GAME'}</button>
+                <button onClick={() => setScreen('home')} className="bg-red-600 text-white border-2 border-white rounded py-2 text-[9px] flex-1 active:scale-95">KEMBALI</button>
+              </div>
+            </div>
+          );
+        }
+
+        // Render ke Layar
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
